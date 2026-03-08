@@ -86,9 +86,27 @@ export const filteredProductsState = selector<Product[]>({
     const sorted = [...result].sort((a, b) => {
       switch (sortOption) {
         case "priceAsc":
-          return a.price - b.price;
+          // 从低到高：免费(1) → 带价格(0) → viewonly(2)
+          if (a.pricingOption === 1 && b.pricingOption !== 1) return -1;
+          if (b.pricingOption === 1 && a.pricingOption !== 1) return 1;
+          if (a.pricingOption === 2 && b.pricingOption !== 2) return 1;
+          if (b.pricingOption === 2 && a.pricingOption !== 2) return -1;
+          // 同为付费产品时按价格排序
+          if (a.pricingOption === 0 && b.pricingOption === 0) {
+            return a.price - b.price;
+          }
+          return 0;
         case "priceDesc":
-          return b.price - a.price;
+          // 从高到低：带价格(0) → 免费(1) → viewonly(2)
+          if (a.pricingOption === 0 && b.pricingOption !== 0) return -1;
+          if (b.pricingOption === 0 && a.pricingOption !== 0) return 1;
+          if (a.pricingOption === 2 && b.pricingOption !== 2) return 1;
+          if (b.pricingOption === 2 && a.pricingOption !== 2) return -1;
+          // 同为付费产品时按价格排序
+          if (a.pricingOption === 0 && b.pricingOption === 0) {
+            return b.price - a.price;
+          }
+          return 0;
         case "titleAsc":
           return a.title.localeCompare(b.title);
         case "titleDesc":
