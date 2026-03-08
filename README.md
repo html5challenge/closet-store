@@ -1,6 +1,8 @@
 # CLOSET-STORE
 
-## Project architecture
+## Project
+
+完成requirements所有部分，optional部分的功能，除了滑动条和测试代码，其他完成了
 
 ### Libraries
 
@@ -8,6 +10,7 @@
 - Typescript
 - Vite V6
 - Recoil
+- rc-slider
 
 ## Installation
 

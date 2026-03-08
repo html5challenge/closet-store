@@ -1,8 +1,11 @@
 import { ChangeEvent, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { FiSearch, FiX } from "react-icons/fi";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
 import {
   pricingOptionFilterState,
+  priceRangeFilterState,
   PRICING_OPTION,
   PricingOption,
   searchQueryState,
@@ -15,6 +18,7 @@ const SearchBar = () => {
   const [pricingFilter, setPricingFilter] = useRecoilState(
     pricingOptionFilterState
   );
+  const [priceRange, setPriceRange] = useRecoilState(priceRangeFilterState);
   const [sortOption, setSortOption] = useRecoilState(sortOptionState);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +43,15 @@ const SearchBar = () => {
     setPricingFilter([]);
   };
 
+  const handlePriceRangeChange = (value: number | number[]) => {
+    if (Array.isArray(value)) {
+      const [newMin, newMax] = value;
+      const finalValues = newMax < newMin ? [newMin, newMin] : [newMin, newMax];
+
+      setPriceRange(finalValues as [number, number]);
+    }
+  };
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -56,8 +69,17 @@ const SearchBar = () => {
       url.searchParams.delete("pricing");
     }
 
+    const [minPrice, maxPrice] = priceRange;
+    if (minPrice > 0 || maxPrice < 999) {
+      url.searchParams.set("minPrice", minPrice.toString());
+      url.searchParams.set("maxPrice", maxPrice.toString());
+    } else {
+      url.searchParams.delete("minPrice");
+      url.searchParams.delete("maxPrice");
+    }
+
     window.history.replaceState(null, "", url.toString());
-  }, [query, pricingFilter]);
+  }, [query, pricingFilter, priceRange]);
 
   return (
     <>
@@ -116,6 +138,33 @@ const SearchBar = () => {
             />
             <span>View only</span>
           </label>
+          <div className="price-slider-container">
+            <span>${priceRange[0]}</span>
+            <Slider
+              range
+              min={0}
+              max={999}
+              value={priceRange}
+              onChange={handlePriceRangeChange}
+              className="price-slider"
+              disabled={!isChecked(PRICING_OPTION.PAID)}
+              trackStyle={[{ backgroundColor: "#38bdf8" }]}
+              handleStyle={[
+                { 
+                  borderColor: "#38bdf8", 
+                  backgroundColor: "#38bdf8"
+                },
+                { 
+                  borderColor: "#38bdf8", 
+                  backgroundColor: "#38bdf8"
+                }
+              ]}
+              railStyle={{ backgroundColor: "#4b5563" }}
+              // minBoundary={priceRange[0]}
+              // maxBoundary={priceRange[1]}
+            />
+            <span>${priceRange[1]}</span>
+          </div>
         </div>
         <button
           type="button"

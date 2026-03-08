@@ -26,6 +26,18 @@ const getInitialPricingFilter = (): PricingOption[] => {
     .filter((v): v is PricingOption => v === 0 || v === 1 || v === 2);
 };
 
+const getInitialPriceRangeFilter = () => {
+  if (typeof window === "undefined") return [0, 999];
+  const params = new URLSearchParams(window.location.search);
+  const min = params.get("minPrice");
+  const max = params.get("maxPrice");
+  
+  const minPrice = min ? Math.max(0, Math.min(999, Number(min))) : 0;
+  const maxPrice = max ? Math.max(0, Math.min(999, Number(max))) : 999;
+  
+  return [minPrice, maxPrice];
+};
+
 // 后端接口 https://closet-recruiting-api.azurewebsites.net/api/data 
 export type Product = {
   id: string;
@@ -51,6 +63,11 @@ export const pricingOptionFilterState = atom<PricingOption[]>({
   default: getInitialPricingFilter()
 });
 
+export const priceRangeFilterState = atom<[number, number]>({
+  key: "priceRangeFilterState",
+  default: getInitialPriceRangeFilter()
+});
+
 export type SortOption =
   | "relevance"
   | "priceAsc"
@@ -69,6 +86,7 @@ export const filteredProductsState = selector<Product[]>({
     const products = get(productsState);
     const query = get(searchQueryState).toLowerCase().trim();
     const pricingFilter = get(pricingOptionFilterState);
+    const priceRange = get(priceRangeFilterState);
     const sortOption = get(sortOptionState);
 
     let result = products;
@@ -81,6 +99,17 @@ export const filteredProductsState = selector<Product[]>({
 
     if (pricingFilter.length > 0) {
       result = result.filter((p) => pricingFilter.includes(p.pricingOption));
+    }
+
+    // 价格范围过滤（只有当Paid选项被选中时才应用）
+    if (pricingFilter.includes(0)) {
+      const [minPrice, maxPrice] = priceRange;
+      result = result.filter((p) => {
+        if (p.pricingOption === 0) { // 付费产品
+          return p.price >= minPrice && p.price <= maxPrice;
+        }
+        return true; // 免费和viewonly产品不受价格范围限制
+      });
     }
 
     const sorted = [...result].sort((a, b) => {
