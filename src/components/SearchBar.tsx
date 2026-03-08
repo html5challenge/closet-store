@@ -5,7 +5,9 @@ import {
   pricingOptionFilterState,
   PRICING_OPTION,
   PricingOption,
-  searchQueryState
+  searchQueryState,
+  sortOptionState,
+  type SortOption
 } from "../state/products";
 
 const SearchBar = () => {
@@ -13,6 +15,7 @@ const SearchBar = () => {
   const [pricingFilter, setPricingFilter] = useRecoilState(
     pricingOptionFilterState
   );
+  const [sortOption, setSortOption] = useRecoilState(sortOptionState);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -121,6 +124,23 @@ const SearchBar = () => {
         >
           RESET
         </button>
+      </div>
+      <div className="sort-by-row" aria-label="sort options">
+        <label className="sort-by-label">
+          <span className="sort-by-text">Sort by</span>
+          <select
+            className="sort-by-select"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+            aria-label="sort by"
+          >
+            <option value="relevance">Relevance</option>
+            <option value="priceAsc">Price: Low to High</option>
+            <option value="priceDesc">Price: High to Low</option>
+            <option value="titleAsc">Title: A to Z</option>
+            <option value="titleDesc">Title: Z to A</option>
+          </select>
+        </label>
       </div>
     </>
   );

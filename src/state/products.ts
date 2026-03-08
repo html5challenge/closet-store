@@ -51,12 +51,25 @@ export const pricingOptionFilterState = atom<PricingOption[]>({
   default: getInitialPricingFilter()
 });
 
+export type SortOption =
+  | "relevance"
+  | "priceAsc"
+  | "priceDesc"
+  | "titleAsc"
+  | "titleDesc";
+
+export const sortOptionState = atom<SortOption>({
+  key: "sortOptionState",
+  default: "relevance"
+});
+
 export const filteredProductsState = selector<Product[]>({
   key: "filteredProductsState",
   get: ({ get }) => {
     const products = get(productsState);
     const query = get(searchQueryState).toLowerCase().trim();
     const pricingFilter = get(pricingOptionFilterState);
+    const sortOption = get(sortOptionState);
 
     let result = products;
 
@@ -70,6 +83,21 @@ export const filteredProductsState = selector<Product[]>({
       result = result.filter((p) => pricingFilter.includes(p.pricingOption));
     }
 
-    return result;
+    const sorted = [...result].sort((a, b) => {
+      switch (sortOption) {
+        case "priceAsc":
+          return a.price - b.price;
+        case "priceDesc":
+          return b.price - a.price;
+        case "titleAsc":
+          return a.title.localeCompare(b.title);
+        case "titleDesc":
+          return b.title.localeCompare(a.title);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
   }
 });

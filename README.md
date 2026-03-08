@@ -33,6 +33,7 @@ npm run install
 npm run dev
 npm run start
 ```
+http://localhost:3000/
 
 ## Testings
 
