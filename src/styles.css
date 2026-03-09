@@ -113,9 +113,14 @@ body {
 
 .price-slider-container {
   display: flex;
-  gap: 20px;
+  /* gap: 20px; */
   align-items: center;
   width: 200px;
+}
+
+.price-slider-container span {
+  min-width: 50px;
+  text-align: center;
 }
 
 .price-slider {
