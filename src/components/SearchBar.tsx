@@ -45,10 +45,7 @@ const SearchBar = () => {
 
   const handlePriceRangeChange = (value: number | number[]) => {
     if (Array.isArray(value)) {
-      const [newMin, newMax] = value;
-      const finalValues = newMax < newMin ? [newMin, newMin] : [newMin, newMax];
-
-      setPriceRange(finalValues as [number, number]);
+      setPriceRange(value as [number, number]);
     }
   };
 
@@ -147,6 +144,7 @@ const SearchBar = () => {
               value={priceRange}
               onChange={handlePriceRangeChange}
               className="price-slider"
+              allowCross={false}
               disabled={!isChecked(PRICING_OPTION.PAID)}
               trackStyle={[{ backgroundColor: "#38bdf8" }]}
               handleStyle={[
@@ -160,8 +158,6 @@ const SearchBar = () => {
                 }
               ]}
               railStyle={{ backgroundColor: "#4b5563" }}
-              // minBoundary={priceRange[0]}
-              // maxBoundary={priceRange[1]}
             />
             <span>${priceRange[1]}</span>
           </div>
